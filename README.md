@@ -1,2 +1,2 @@
 # mundAI
-Tool to generate podcasts using PDF data sources
+Tool to generate podcasts using PDF data sources.
