@@ -58,3 +58,6 @@ Ensure you have the following installed:
     ```
 Open the local URL provided by Gradio in your browser to access PodGenie.
 
+### **Example Output**
+https://github.com/user-attachments/assets/6068b2c6-5500-4126-90c0-c6d6ce9f80f1
+
