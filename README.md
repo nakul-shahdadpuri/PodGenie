@@ -2,8 +2,10 @@
 
 Welcome to the **PodGenie** GitHub repository! PodGenie is a cutting-edge tool designed to revolutionize podcast production. By leveraging **Large Language Models (LLMs)**, PodGenie automates the generation of podcast scripts and audio transcripts, significantly reducing content creation time while ensuring high-quality outputs. The tool is built using **LangChain**, **Gradio**, and **GTTS (Google Text-to-Speech)**, with a user-friendly interface for seamless operation.
 
-### **Example Output**
-https://github.com/user-attachments/assets/6068b2c6-5500-4126-90c0-c6d6ce9f80f1
+### **User Interface**
+
+![image](https://github.com/user-attachments/assets/b6245f9b-56ab-481e-b645-0aabb5a5acde)
+
 
 ---
 
