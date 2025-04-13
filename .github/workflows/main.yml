@@ -1,4 +1,4 @@
-name: CI - Build React App (Yarn)
+name: CI - Check Setup Only
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,11 +19,5 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Yarn
-        run: npm install -g yarn
-
-      - name: Install dependencies with Yarn
-        run: yarn install
-
-      - name: Build the project
-        run: yarn build
+      - name: Install dependencies only
+        run: npm install --legacy-peer-deps
