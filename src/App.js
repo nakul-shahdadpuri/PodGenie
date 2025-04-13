@@ -1,24 +1,41 @@
-import React, { useState, useEffect } from "react";
-import { Download, Sun, Moon } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Download, Sun, Moon, Mic, Square } from "lucide-react";
 
-const voices = ["Male - Deep", "Female - Soft", "British Accent", "American Accent"];
+const defaultVoices = ["Male - Deep", "Female - Soft", "British Accent", "American Accent"];
 const sampleScript = [
   "Welcome to PodGenie, where we explore opposing viewpoints.",
-  "Margraet: I believe technological innovation is primarily beneficial.",
-  "Jemma: But unchecked innovation can deepen inequality.",
+  "Host: I believe technological innovation is primarily beneficial.",
+  "Guest: But unchecked innovation can deepen inequality.",
   "Let’s dive into this critical discussion."
 ];
 
 export default function AIDebatesUI() {
   const [prompt, setPrompt] = useState("");
-  const [hostVoice, setHostVoice] = useState(voices[0]);
-  const [guestVoice, setGuestVoice] = useState(voices[1]);
-  const [margraetLeaning, setMargraetLeaning] = useState(50);
-  const [jemmaLeaning, setJemmaLeaning] = useState(50);
+  const [hostVoice, setHostVoice] = useState(defaultVoices[0]);
+  const [guestVoice, setGuestVoice] = useState(defaultVoices[1]);
+  const [hostRecording, setHostRecording] = useState(null);
+  const [guestRecording, setGuestRecording] = useState(null);
   const [script, setScript] = useState(sampleScript);
   const [audioUrl, setAudioUrl] = useState("/sample.mp3");
   const [currentLine, setCurrentLine] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const [isRecording, setIsRecording] = useState(null);
+  const [recordingStartTime, setRecordingStartTime] = useState(null);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+
+  useEffect(() => {
+    let timer;
+    if (isRecording) {
+      timer = setInterval(() => {
+        setRecordingDuration(Math.floor((Date.now() - recordingStartTime) / 1000));
+      }, 500);
+    } else {
+      clearInterval(timer);
+    }
+    return () => clearInterval(timer);
+  }, [isRecording, recordingStartTime]);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
@@ -34,6 +51,74 @@ export default function AIDebatesUI() {
     setCurrentLine(0);
   };
 
+  const startRecording = (role) => {
+    setIsRecording(role);
+    setRecordingStartTime(Date.now());
+    setRecordingDuration(0);
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      chunksRef.current = [];
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        chunksRef.current.push(e.data);
+      };
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const audioURL = URL.createObjectURL(blob);
+        if (role === "host") setHostRecording(audioURL);
+        if (role === "guest") setGuestRecording(audioURL);
+        chunksRef.current = [];
+      };
+      mediaRecorderRef.current.start();
+    });
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current.stop();
+    setIsRecording(null);
+    setRecordingStartTime(null);
+  };
+
+  const renderVoiceSection = (role, label, selectedVoice, setSelectedVoice, recording, setRecording) => (
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold">{label}</h3>
+      <select
+        value={selectedVoice}
+        onChange={(e) => setSelectedVoice(e.target.value)}
+        className="w-full p-2 rounded text-black"
+      >
+        {defaultVoices.map((voice) => (
+          <option key={voice}>{voice}</option>
+        ))}
+      </select>
+      <div className="flex gap-2 items-center">
+        {isRecording === role ? (
+          <>
+            <button
+              onClick={stopRecording}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+            >
+              <Square className="w-4 h-4" /> Stop Recording
+            </button>
+            <span className="text-red-500 font-medium animate-pulse">Recording... {recordingDuration}s</span>
+          </>
+        ) : (
+          <button
+            onClick={() => startRecording(role)}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+          >
+            <Mic className="w-4 h-4 animate-pulse text-white" /> Record Sample
+          </button>
+        )}
+      </div>
+      {recording && (
+        <div className="mt-2">
+          <label className="text-sm text-gray-600">Playback:</label>
+          <audio controls src={recording} className="w-full mt-1" />
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gradient-to-b from-white via-blue-50 to-indigo-100 text-gray-900"} font-sans min-h-screen p-6 transition-all`}>
       <style>{`body { font-family: 'Inter', 'Segoe UI', sans-serif; }`}</style>
@@ -45,74 +130,23 @@ export default function AIDebatesUI() {
           </button>
         </div>
 
-        <div className={`${darkMode ? "bg-gray-800" : "bg-blue-50"} shadow rounded p-4 space-y-4`}>
-          <h2 className="text-xl font-semibold">Enter your prompt</h2>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Type your idea here..."
-            className="w-full p-3 border border-gray-300 rounded min-h-[100px] text-black"
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium">Margraet Voice</label>
-              <select
-                value={hostVoice}
-                onChange={(e) => setHostVoice(e.target.value)}
-                className="w-full p-2 rounded text-black"
-              >
-                {voices.map((voice) => (
-                  <option key={voice}>{voice}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-medium">Jemma Voice</label>
-              <select
-                value={guestVoice}
-                onChange={(e) => setGuestVoice(e.target.value)}
-                className="w-full p-2 rounded text-black"
-              >
-                {voices.map((voice) => (
-                  <option key={voice}>{voice}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
+        <div className={`${darkMode ? "bg-gray-800" : "bg-blue-50"} shadow rounded p-6 space-y-6`}>
           <div>
-            <label className="block font-medium">Margraet Political Leaning</label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={margraetLeaning}
-              onChange={(e) => setMargraetLeaning(Number(e.target.value))}
-              className="w-full"
+            <h2 className="text-xl font-semibold mb-2">Enter your prompt</h2>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Type your idea here..."
+              className="w-full p-3 border border-gray-300 rounded min-h-[100px] text-black"
             />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Extreme Left</span><span>Center</span><span>Extreme Right</span>
-            </div>
           </div>
 
-          <div>
-            <label className="block font-medium">Jemma Political Leaning</label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={jemmaLeaning}
-              onChange={(e) => setJemmaLeaning(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Extreme Left</span><span>Center</span><span>Extreme Right</span>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {renderVoiceSection("host", "Host Voice", hostVoice, setHostVoice, hostRecording, setHostRecording)}
+            {renderVoiceSection("guest", "Guest Voice", guestVoice, setGuestVoice, guestRecording, setGuestRecording)}
           </div>
 
-          <button onClick={generatePodcast} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+          <button onClick={generatePodcast} className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">
             Generate Podcast
           </button>
         </div>
