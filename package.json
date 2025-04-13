@@ -8,17 +8,13 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
-  "devDependencies": {
+    "web-vitals": "^2.1.4",
     "fs-extra": "10.0.0",
-    "npm-force-resolutions": "^0.0.10"
-  },
-  "resolutions": {
-    "fs-extra": "10.0.0"
+    "cross-spawn": "7.0.1",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2"
   },
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
