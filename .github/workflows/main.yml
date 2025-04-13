@@ -19,11 +19,11 @@ jobs:
         with:
           node-version: 16
 
+      - name: Apply forced resolutions
+        run: npx npm-force-resolutions
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-
-      - name: Add fs-extra if needed
-        run: npm install fs-extra --save-dev
 
       - name: Build project
         run: npm run build
