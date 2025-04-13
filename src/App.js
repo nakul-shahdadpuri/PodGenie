@@ -3,7 +3,7 @@ import { Download, Sun, Moon } from "lucide-react";
 
 const voices = ["Male - Deep", "Female - Soft", "British Accent", "American Accent"];
 const sampleScript = [
-  "Welcome to AI Debates, where we explore opposing viewpoints.",
+  "Welcome to PodGenie, where we explore opposing viewpoints.",
   "Margraet: I believe technological innovation is primarily beneficial.",
   "Jemma: But unchecked innovation can deepen inequality.",
   "Let’s dive into this critical discussion."
@@ -17,8 +17,8 @@ export default function AIDebatesUI() {
   const [jemmaLeaning, setJemmaLeaning] = useState(50);
   const [script, setScript] = useState(sampleScript);
   const [audioUrl, setAudioUrl] = useState("/sample.mp3");
-  const [darkMode, setDarkMode] = useState(false);
   const [currentLine, setCurrentLine] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
@@ -39,13 +39,13 @@ export default function AIDebatesUI() {
       <style>{`body { font-family: 'Inter', 'Segoe UI', sans-serif; }`}</style>
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">AI Debates</h1>
+          <h1 className="text-2xl font-bold">PodGenie</h1>
           <button onClick={toggleDarkMode} className="p-2">
             {darkMode ? <Sun /> : <Moon />}
           </button>
         </div>
 
-        <div className="bg-blue-50 dark:bg-gray-800 shadow rounded p-4 space-y-4">
+        <div className={`${darkMode ? "bg-gray-800" : "bg-blue-50"} shadow rounded p-4 space-y-4`}>
           <h2 className="text-xl font-semibold">Enter your prompt</h2>
           <textarea
             value={prompt}
@@ -117,7 +117,7 @@ export default function AIDebatesUI() {
           </button>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 shadow rounded p-4 space-y-4">
+        <div className={`${darkMode ? "bg-gray-800" : "bg-white"} shadow rounded p-4 space-y-4`}>
           <h3 className="text-lg font-semibold">Generated Script</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {script.map((line, index) => (
