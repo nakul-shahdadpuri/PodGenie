@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.5.1",
+    "cross-spawn": "7.0.1",
     "lucide-react": "^0.488.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
